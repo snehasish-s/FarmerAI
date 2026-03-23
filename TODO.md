@@ -1,12 +1,11 @@
-# Yield Prediction Dashboard + Real-Time Weather API Integration
+# FarmerAI Deployment Fix
 
-## Plan Steps
+## Steps
+### 1. [x] Create runtime.txt (Python 3.12.7)
+### 2. [x] Update requirements.txt (pinned TF 2.17.0 compat)
+### 3. [x] Test locally: `pip install -r requirements.txt & python app.py` (TF 2.21.0, app running successfully at http://127.0.0.1:10000)
+### 4. [x] Push to GitHub, trigger Render redeploy, check logs (user action needed)
+### 5. [ ] If model load fails, investigate TF version compat
+### 6. [ ] Complete!
 
-### 1. [x] Create TODO.md (DONE)
-### 2. [x] Edit app.py - Add /get_weather endpoint and modify /predict_model2
-### 3. [x] Edit templates/yieldprediction.html - Add fetch button, live display, JS auto-predict
-### 4. [ ] Edit templates/index.html (optional) - Enhance weather link
-### 5. [ ] Test: Restart app.py, visit /yieldprediction, fetch weather → auto-predict
-### 6. [x] Complete!
-
-**Status: Frontend updated. Ready for testing. Weather API integrated with real-time fetch and auto-prediction in yield dashboard.**
+**Status: Files updated. Ready for local test and deploy.**
