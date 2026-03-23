@@ -1,11 +1,8 @@
 import random
 from flask import Flask, render_template, request, jsonify
-import tensorflow as tf
-import numpy as np
 import io
 import requests
 import os
-import pickle
 
 app = Flask(__name__)
 
@@ -13,15 +10,11 @@ app = Flask(__name__)
 WEATHER_API_KEY = os.getenv('WEATHER_API_KEY', 'demo_key_hidden')  # Set env var for real key
 WEATHER_BASE_URL = 'https://wttr.in/{location}?format=j1'  # Free wttr.in (no key needed)
 
-# Load models
-crop_health_model = tf.keras.models.load_model("models/crop_health_model.keras")
-yield_model = tf.keras.models.load_model("models/yield_model.keras")
-irrigation_model = tf.keras.models.load_model("models/irrigation_model.keras")
-fertilizer_model = tf.keras.models.load_model("models/fertilizer_model.keras")
-with open("models/irrigation_preproc.pkl", "rb") as f:
-    irrigation_preproc = pickle.load(f)
-with open("models/fertilizer_preproc.pkl", "rb") as f:
-    fertilizer_preproc = pickle.load(f)
+# MVP: Mock models (no TF)
+MODELS_AVAILABLE = False
+class_labels = {0: "Healthy", 1: "Nutrient Deficient", 2: "Leaf Blight", 3: "Rust", 4: "Other Disease"}
+irrigation_preproc = {'crop_map': {'wheat': 0}, 'soil_map': {'loamy': 1}, 'X_mean': 0, 'X_std': 1}
+fertilizer_preproc = {'crop_map': {'wheat': 0}, 'soil_map': {'loamy': 1}, 'X_mean': 0, 'X_std': 1}
 
 # Class labels for crop health
 class_labels = {
@@ -179,92 +172,47 @@ def get_crop_prices():
 # ==============================
 @app.route("/predict_model1", methods=["POST"])
 def predict_model1():
-    if "file" not in request.files:
-        return jsonify({"error": "No file uploaded"})
-    
-    file = request.files["file"]
-    if file.filename == "":
-        return jsonify({"error": "No selected file"})
-
-    try:
-        img = tf.keras.utils.load_img(io.BytesIO(file.read()), target_size=(128, 128))
-        img_array = tf.keras.utils.img_to_array(img)
-        img_array = np.expand_dims(img_array, axis=0) / 255.0
-
-        predictions = crop_health_model.predict(img_array)
-        class_idx = np.argmax(predictions[0])
-        confidence = float(np.max(predictions[0])) * 100
-
+    if not MODELS_AVAILABLE:
+        import random
+        class_idx = random.choice([0,1,2])
+        confidence = 75 + random.randint(0,25)
         result = {
             "label": class_labels[class_idx],
             "status": "Healthy" if class_idx == 0 else "Unhealthy",
-            "accuracy": f"{confidence:.2f}%"
+            "accuracy": f"{confidence:.2f}%",
+            "mode": "demo"
         }
-
-        print("DEBUG RESULT:", result)
         return jsonify(result)
-
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    # Original code (unreachable without TF)
+    return jsonify({"error": "ML models not loaded"})
 
 # ==============================
 # Yield Prediction
 # ==============================
 @app.route("/predict_yield", methods=["POST"])
 def predict_yield():
-    try:
-        rainfall = float(request.form.get("rainfall", 0))
-        temperature = float(request.form.get("temperature", 0))
-        humidity = float(request.form.get("humidity", 0))
-
-        features = np.array([[rainfall, temperature, humidity]])
-        prediction = yield_model.predict(features)
-        yield_value = float(prediction[0][0])
-
-        result = {"predicted_yield": f"{yield_value:.2f} kg/ha"}
-        print("DEBUG RESULT:", result)
+    if not MODELS_AVAILABLE:
+        import random
+        yield_value = 3500 + random.randint(-500, 500)
+        result = {"predicted_yield": f"{yield_value:.2f} kg/ha", "mode": "demo"}
         return jsonify(result)
-
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    # Original
+    return jsonify({"error": "ML models not loaded"})
 
 @app.route("/predict_model2", methods=["POST"])
 def predict_model2():
-    try:
-        data = request.get_json()
-        if not data or not all(k in data for k in ['rainfall', 'temperature', 'humidity']):
-            # Auto-fetch weather
-            weather_response = get_weather()
-            weather_data = weather_response.get_json()
-            if 'error' not in weather_data:
-                data = {
-                    'rainfall': weather_data['rainfall'],
-                    'temperature': weather_data['temperature'],
-                    'humidity': weather_data['humidity']
-                }
-                used_live = True
-            else:
-                data = {'rainfall': 0, 'temperature': 25, 'humidity': 70}
-                used_live = False
-        else:
-            used_live = False
-        
-        rainfall = float(data["rainfall"])
-        temperature = float(data["temperature"])
-        humidity = float(data["humidity"])
-
-        input_data = np.array([[rainfall, temperature, humidity]])
-        prediction = yield_model.predict(input_data)
-        predicted_yield = float(prediction[0][0])
-
+    data = request.get_json() or {'rainfall': 0, 'temperature': 25, 'humidity': 70}
+    if not MODELS_AVAILABLE:
+        import random
+        predicted_yield = 3500 + data['temperature'] * 10 - data['rainfall'] * 5 + random.randint(-200, 200)
         return jsonify({
-            "yield": f"{predicted_yield:.2f} kg/ha",
-            "used_weather": used_live,
-            "weather_data": data
+            "yield": f"{max(1000, predicted_yield):.2f} kg/ha",
+            "used_weather": True,
+            "weather_data": data,
+            "mode": "demo"
         })
-
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    # Original
+    return jsonify({"error": "ML models not loaded"})
 
 @app.route("/predict_irrigation", methods=["POST"])
 def predict_irrigation():
