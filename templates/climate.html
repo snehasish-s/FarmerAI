@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Climate Impact Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2e7d32;
+      --secondary-color: #7cb342;
+      --accent-color: #ffa000;
+      --danger-color: #e53935;
+      --warning-color: #ffb300;
+      --info-color: #29b6f6;
+      --light-color: #f5f5f5;
+      --dark-color: #37474f;
+      --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--secondary-color);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .logo i {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+    }
+    
+    .logo h1 {
+      font-size: 2.2rem;
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+    
+    .date-display {
+      font-size: 1.1rem;
+      color: var(--dark-color);
+      background-color: #e8f5e9;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      padding: 20px;
+      transition: var(--transition);
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .card-title {
+      font-size: 1.4rem;
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+    
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      background-color: #e8f5e9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-color);
+      font-size: 1.2rem;
+    }
+    
+    .weather-data {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .data-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+    
+    .data-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+    }
+    
+    .data-value {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    
+    .rainfall-value {
+      color: var(--info-color);
+    }
+    
+    .temperature-value {
+      color: var(--warning-color);
+    }
+    
+    .ndvi-value {
+      color: var(--primary-color);
+    }
+    
+    .progress-container {
+      height: 8px;
+      background-color: #e0e0e0;
+      border-radius: 4px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      border-radius: 4px;
+    }
+    
+    .rainfall-progress {
+      background-color: var(--info-color);
+      width: 65%;
+    }
+    
+    .temperature-progress {
+      background-color: var(--warning-color);
+      width: 78%;
+    }
+    
+    .ndvi-progress {
+      background-color: var(--primary-color);
+      width: 82%;
+    }
+    
+    .alert-card {
+      border-left: 5px solid var(--danger-color);
+    }
+    
+    .alert-header {
+      color: var(--danger-color);
+    }
+    
+    .alert-icon {
+      background-color: #ffebee;
+      color: var(--danger-color);
+    }
+    
+    .alert-list {
+      list-style-type: none;
+    }
+    
+    .alert-item {
+      padding: 12px;
+      margin: 10px 0;
+      background-color: #fff8e1;
+      border-left: 4px solid var(--warning-color);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .alert-item i {
+      color: var(--warning-color);
+      font-size: 1.2rem;
+    }
+    
+    .no-alerts {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      color: var(--primary-color);
+    }
+    
+    .no-alerts i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+    
+    .no-alerts p {
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+    
+    .chart-container {
+      margin-top: 20px;
+      height: 200px;
+      position: relative;
+    }
+    
+    .chart-bar {
+      position: absolute;
+      bottom: 0;
+      width: 30px;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      transition: var(--transition);
+    }
+    
+    .chart-bar:hover {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+    
+    .chart-x-axis {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+    }
+    
+    .chart-label {
+      font-size: 0.9rem;
+      color: var(--dark-color);
+      text-align: center;
+      width: 30px;
+    }
+    
+    /* FAQ Section Styles */
+    .faq-section {
+      margin-top: 40px;
+    }
+    
+    .faq-title {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--primary-color);
+      font-size: 2rem;
+    }
+    
+    .faq-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+    }
+    
+    .faq-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      padding: 20px;
+      transition: var(--transition);
+      border-left: 4px solid var(--secondary-color);
+    }
+    
+    .faq-question {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .faq-question i {
+      color: var(--accent-color);
+    }
+    
+    .faq-answer {
+      color: var(--dark-color);
+      line-height: 1.6;
+    }
+    
+    .expand-btn {
+      background: var(--secondary-color);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+    
+    .expand-btn:hover {
+      background: var(--primary-color);
+    }
+    
+    .additional-info {
+      display: none;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px dashed #ddd;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      color: var(--dark-color);
+      font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+      }
+      
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+      
+      .faq-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <i class="fas fa-seedling"></i>
+        <h1>Climate Impact Dashboard</h1>
+      </div>
+      <div class="date-display">
+        <i class="far fa-calendar-alt"></i>
+        <span id="current-date">Loading...</span>
+      </div>
+    </header>
+    
+    <div class="dashboard">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Weather Data</h2>
+          <div class="card-icon">
+            <i class="fas fa-cloud-sun"></i>
+          </div>
+        </div>
+        <div class="weather-data">
+          <div class="data-item">
+            <div class="data-label">
+              <i class="fas fa-cloud-rain" style="color: var(--info-color);"></i>
+              <span>Rainfall</span>
+            </div>
+            <div class="data-value rainfall-value">127 mm</div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar rainfall-progress"></div>
+          </div>
+          
+          <div class="data-item">
+            <div class="data-label">
+              <i class="fas fa-thermometer-half" style="color: var(--warning-color);"></i>
+              <span>Temperature</span>
+            </div>
+            <div class="data-value temperature-value">28.5 °C</div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar temperature-progress"></div>
+          </div>
+          
+          <div class="data-item">
+            <div class="data-label">
+              <i class="fas fa-leaf" style="color: var(--primary-color);"></i>
+              <span>NDVI (Crop Health)</span>
+            </div>
+            <div class="data-value ndvi-value">0.82</div>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar ndvi-progress"></div>
+          </div>
+        </div>
+        
+        <div class="chart-container" id="weather-chart">
+          <!-- Chart will be generated by JavaScript -->
+        </div>
+      </div>
+      
+      <div class="card alert-card">
+        <div class="card-header">
+          <h2 class="card-title alert-header">Alerts & Notifications</h2>
+          <div class="card-icon alert-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+        </div>
+        <div class="alert-content">
+          <ul class="alert-list">
+            <li class="alert-item">
+              <i class="fas fa-temperature-high"></i>
+              <span>High temperature warning: Expected to reach 35°C tomorrow</span>
+            </li>
+            <li class="alert-item">
+              <i class="fas fa-wind"></i>
+              <span>Strong winds forecasted for the next 48 hours</span>
+            </li>
+            <li class="alert-item">
+              <i class="fas fa-tint-slash"></i>
+              <span>Rainfall 25% below average for this season</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Crop Health Overview</h2>
+        <div class="card-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+      </div>
+      <div class="chart-container" id="crop-health-chart">
+        <!-- Chart will be generated by JavaScript -->
+      </div>
+      <div class="chart-x-axis" id="crop-health-labels">
+        <!-- Labels will be generated by JavaScript -->
+      </div>
+    </div>
+    
+    <!-- FAQ Section -->
+    <section class="faq-section">
+      <h2 class="faq-title">Frequently Asked Questions About Climate Change</h2>
+      <div class="faq-container">
+        <div class="faq-card">
+          <div class="faq-question">
+            <i class="fas fa-question-circle"></i>
+            What is climate change?
+          </div>
+          <div class="faq-answer">
+            Climate change refers to significant, long-term changes in the patterns of temperature, precipitation, wind, and other aspects of the Earth's climate system. These changes are primarily driven by human activities, especially the burning of fossil fuels which increases heat-trapping greenhouse gas levels in Earth's atmosphere.
+          </div>
+          <button class="expand-btn" onclick="toggleInfo(this)">Learn More</button>
+          <div class="additional-info">
+            The Earth's climate has changed throughout history, but the current warming trend is of particular significance because it is predominantly the result of human activities since the mid-20th century and proceeding at a rate that is unprecedented over millennia.
+          </div>
+        </div>
+        
+        <div class="faq-card">
+          <div class="faq-question">
+            <i class="fas fa-question-circle"></i>
+            How does climate change affect agriculture?
+          </div>
+          <div class="faq-answer">
+            Climate change affects agriculture through changes in average temperatures, rainfall patterns, extreme weather events, and the spread of pests and diseases. These changes can reduce crop yields, affect soil health, and threaten food security in vulnerable regions.
+          </div>
+          <button class="expand-btn" onclick="toggleInfo(this)">Learn More</button>
+          <div class="additional-info">
+            Changes in climate can lead to reduced nutritional quality of crops, decreased water availability for irrigation, and increased heat stress on livestock. Adaptation strategies include developing climate-resilient crops, improving water management, and adopting sustainable farming practices.
+          </div>
+        </div>
+        
+        <div class="faq-card">
+          <div class="faq-question">
+            <i class="fas fa-question-circle"></i>
+            What is NDVI and how does it relate to crop health?
+          </div>
+          <div class="faq-answer">
+            NDVI (Normalized Difference Vegetation Index) is a measure of the health and density of vegetation. It uses satellite imagery to analyze light reflection - healthy plants reflect more near-infrared light and less visible light. Higher NDVI values indicate healthier, more dense vegetation.
+          </div>
+          <button class="expand-btn" onclick="toggleInfo(this)">Learn More</button>
+          <div class="additional-info">
+            NDVI values range from -1 to +1. Values close to zero or negative typically indicate water, snow, or bare soil, while values above 0.5 generally indicate healthy vegetation. Farmers and researchers use NDVI to monitor crop health, estimate yields, and identify problem areas in fields.
+          </div>
+        </div>
+        
+        <div class="faq-card">
+          <div class="faq-question">
+            <i class="fas fa-question-circle"></i>
+            How does rainfall pattern change affect crops?
+          </div>
+          <div class="faq-answer">
+            Changes in rainfall patterns—including intensity, frequency, and timing—can significantly impact crop growth. Too much rain can cause waterlogging and root diseases, while too little can lead to drought stress. Irregular patterns can disrupt planting and harvesting schedules.
+          </div>
+          <button class="expand-btn" onclick="toggleInfo(this)">Learn More</button>
+          <div class="additional-info">
+            Climate change is causing more extreme rainfall events in some regions and prolonged droughts in others. These changes require adaptations in agricultural practices, such as improved irrigation systems, water conservation techniques, and the development of drought-resistant crop varieties.
+          </div>
+        </div>
+        
+        <div class="faq-card">
+          <div class="faq-question">
+            <i class="fas fa-question-circle"></i>
+            What can farmers do to adapt to climate change?
+          </div>
+          <div class="faq-answer">
+            Farmers can adopt various climate-smart agricultural practices including: diversifying crops, implementing water conservation techniques, using cover crops to improve soil health, adopting integrated pest management, and utilizing climate-resilient crop varieties.
+          </div>
+          <button class="expand-btn" onclick="toggleInfo(this)">Learn More</button>
+          <div class="additional-info">
+            Other adaptation strategies include adjusting planting dates to align with changing seasonal patterns, investing in weather insurance, using precision agriculture technologies to optimize resource use, and participating in carbon sequestration programs that can provide additional income streams.
+          </div>
+        </div>
+        
+        <div class="faq-card">
+          <div class="faq-question">
+            <i class="fas fa-question-circle"></i>
+            How does temperature increase affect plant growth?
+          </div>
+          <div class="faq-answer">
+            Higher temperatures can accelerate plant development, reducing the growing period and potentially decreasing yields. Extreme heat can cause heat stress, reduce pollination success, and increase water requirements. Each crop has an optimal temperature range for growth.
+          </div>
+          <button class="expand-btn" onclick="toggleInfo(this)">Learn More</button>
+          <div class="additional-info">
+            For every 1°C increase in temperature, wheat yields are projected to decline by 6%, rice by 3.2%, and maize by 7.4%. Higher temperatures also increase evaporation rates, leading to higher water demands for crops. Nighttime temperatures are particularly important, as higher nighttime temperatures can increase plant respiration and reduce net growth.
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <footer>
+      <p>Climate Impact Dashboard • Updated hourly • <a href="#" style="color: var(--primary-color);">View historical data</a></p>
+    </footer>
+  </div>
+
+  <script>
+    // Set current date
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', options);
+    
+    // Generate weather chart
+    function generateWeatherChart() {
+      const chartContainer = document.getElementById('weather-chart');
+      const metrics = [
+        { name: 'Rainfall', value: 127, max: 200, color: 'var(--info-color)' },
+        { name: 'Temperature', value: 28.5, max: 40, color: 'var(--warning-color)' },
+        { name: 'NDVI', value: 0.82, max: 1, color: 'var(--primary-color)' }
+      ];
+      
+      metrics.forEach(metric => {
+        const height = (metric.value / metric.max) * 180;
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        bar.style.height = `${height}px`;
+        bar.style.backgroundColor = metric.color;
+        bar.style.left = metrics.indexOf(metric) * 40 + 20 + 'px';
+        bar.title = `${metric.name}: ${metric.value}`;
+        chartContainer.appendChild(bar);
+      });
+    }
+    
+    // Generate crop health chart
+    function generateCropHealthChart() {
+      const chartContainer = document.getElementById('crop-health-chart');
+      const labelContainer = document.getElementById('crop-health-labels');
+      const weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'];
+      const values = [0.65, 0.72, 0.78, 0.82, 0.85, 0.82];
+      
+      weeks.forEach((week, index) => {
+        const height = (values[index] / 1) * 180;
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        bar.style.height = `${height}px`;
+        bar.style.backgroundColor = `var(--primary-color)`;
+        bar.style.left = (index * 50) + 30 + 'px';
+        bar.style.width = '35px';
+        bar.title = `Week ${index + 1}: ${values[index]}`;
+        chartContainer.appendChild(bar);
+        
+        const label = document.createElement('div');
+        label.className = 'chart-label';
+        label.textContent = week;
+        labelContainer.appendChild(label);
+      });
+    }
+    
+    // Toggle additional FAQ information
+    function toggleInfo(btn) {
+      const additionalInfo = btn.nextElementSibling;
+      if (additionalInfo.style.display === 'block') {
+        additionalInfo.style.display = 'none';
+        btn.textContent = 'Learn More';
+      } else {
+        additionalInfo.style.display = 'block';
+        btn.textContent = 'Show Less';
+      }
+    }
+    
+    // Initialize charts
+    generateWeatherChart();
+    generateCropHealthChart();
+  </script>
+</body>
+</html>

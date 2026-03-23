@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pest Risk Assessment | Farm-AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --success: #4caf50;
+            --light: #f5f5f5;
+            --dark: #333;
+            --gray: #757575;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* Custom Cursor - copied from main template */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            mix-blend-mode: difference;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+        }
+
+        .cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.6s ease, opacity 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor.hover { transform: scale(2); background-color: var(--warning); }
+        .cursor-follower.hover { transform: translate(-50%, -50%) scale(1.5); border-color: var(--warning); opacity: 0.7; }
+        .cursor.click { transform: scale(0.5); background-color: var(--danger); }
+        .cursor-follower.click { transform: translate(-50%, -50%) scale(0.5); border-color: var(--danger); opacity: 0.5; }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), #388e3c);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: white; box-shadow: var(--shadow); }
+        .logo { font-weight: 700; font-size: 1.5rem; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a { color: var(--dark); text-decoration: none; transition: var(--transition); }
+        .nav-links a:hover { color: var(--primary); }
+
+        main { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+
+        .hero { text-align: center; padding: 4rem 0; }
+        .hero h2 { font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; color: var(--gray); max-width: 800px; margin: 0 auto; }
+
+        .form-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            margin: 2rem 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px; transition: var(--transition); }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 1.5rem;
+        }
+
+        .results { display: none; background: white; border-radius: 12px; padding: 2.5rem; margin: 2rem 0; box-shadow: var(--shadow); }
+        .results.show { display: block; }
+
+        .risk-bars {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .risk-bar {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .risk-label { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .risk-meter {
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        .risk-fill {
+            height: 100%;
+            transition: width 1s ease;
+        }
+        .risk-fill.low { background: var(--success); }
+        .risk-fill.medium { background: var(--warning); }
+        .risk-fill.high { background: var(--danger); }
+
+        .risk-percent { font-size: 1.8rem; font-weight: 700; }
+
+        .alerts { margin-top: 2rem; }
+        .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 8px; display: flex; align-items: center; gap: 1rem; }
+        .alert.high { background: #ffebee; color: var(--danger); }
+        .alert.medium { background: #fff3e0; color: var(--warning); }
+
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .risk-bars { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <!-- Header/Nav copied from pattern -->
+
+    <header>
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <h1>Pest & Disease Risk</h1>
+            <p>AI prediction of pest risks based on weather and crop data</p>
+        </div>
+    </header>
+
+    <nav class="nav-container">
+        <div class="logo">
+            <i class="fas fa-seedling"></i>
+            Farm-AI
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('crophealth_page') }}">Crop Health</a>
+            <a href="{{ url_for('yieldprediction_page') }}">Yield</a>
+            <a href="{{ url_for('irrigation_page') }}">Irrigation</a>
+            <a href="/pestrisk">Pest Risk</a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <h2>Proactive Pest Management</h2>
+            <p>Stay ahead of pest outbreaks with our weather-based risk predictions</p>
+        </section>
+
+        <section class="form-section">
+            <h2 style="text-align: center; color: var(--primary);">Enter Current Conditions</h2>
+            <form id="pestForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Crop Type</label>
+                        <select required>
+                            <option value="">Select</option>
+                            <option value="wheat">Wheat</option>
+                            <option value="rice">Rice</option>
+                            <option value="corn">Corn</option>
+                            <option value="vegetables">Vegetables</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Temperature (°C)</label>
+                        <input type="number" step="0.1" required placeholder="28.5">
+                    </div>
+                    <div class="form-group">
+                        <label>Humidity (%)</label>
+                        <input type="number" step="1" required placeholder="75">
+                    </div>
+                    <div class="form-group">
+                        <label>Rainfall (mm/week)</label>
+                        <input type="number" required placeholder="120">
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Assess Risks</button>
+            </form>
+        </section>
+
+        <section class="results" id="results">
+            <h2 style="text-align: center; color: var(--primary);">Risk Assessment</h2>
+            <div class="risk-bars">
+                <div class="risk-bar">
+                    <div class="risk-label">Aphids</div>
+                    <div class="risk-meter"><div class="risk-fill low" id="aphidFill" style="width: 0%"></div></div>
+                    <div class="risk-percent" id="aphidRisk">0%</div>
+                </div>
+                <div class="risk-bar">
+                    <div class="risk-label">Fungal Diseases</div>
+                    <div class="risk-meter"><div class="risk-fill medium" id="fungalFill" style="width: 0%"></div></div>
+                    <div class="risk-percent" id="fungalRisk">0%</div>
+                </div>
+                <div class="risk-bar">
+                    <div class="risk-label">Stem Borer</div>
+                    <div class="risk-meter"><div class="risk-fill high" id="borerFill" style="width: 0%"></div></div>
+                    <div class="risk-percent" id="borerRisk">0%</div>
+                </div>
+            </div>
+            <div class="alerts" id="alerts"></div>
+        </section>
+    </main>
+
+    <script>
+        // Form logic - POST to /predict_pest
+        document.getElementById('pestForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const btn = e.target.querySelector('.submit-btn');
+            btn.textContent = 'Analyzing...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/predict_pest', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+
+                // Update bars
+                ['aphid', 'fungal', 'borer'].forEach((pest, i) => {
+                    const risk = data[pest + '_risk'] || 25;
+                    document.getElementById(pest + 'Risk').textContent = risk + '%';
+                    document.getElementById(pest + 'Fill').style.width = risk + '%';
+                });
+
+                document.getElementById('results').classList.add('show');
+                document.getElementById('results').scrollIntoView();
+
+            } catch (err) {
+                alert('Error: ' + err);
+            } finally {
+                btn.textContent = 'Assess Risks';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

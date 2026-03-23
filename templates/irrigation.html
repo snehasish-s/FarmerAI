@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Irrigation Planning | Farm-AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Slab:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #FF9800;
+            --secondary-dark: #F57C00;
+            --accent: #2196F3;
+            --light: #F5F5F5;
+            --dark: #333;
+            --gray: #757575;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important; /* Hide default cursor */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark);
+            background-color: var(--light);
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Roboto Slab', serif;
+            font-weight: 600;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            mix-blend-mode: difference;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+        }
+
+        .cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.6s ease, opacity 0.3s ease, border 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Cursor states */
+        .cursor.hover {
+            transform: scale(2);
+            background-color: var(--secondary);
+        }
+
+        .cursor-follower.hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            border: 2px solid var(--secondary);
+            opacity: 0.7;
+        }
+
+        .cursor.click {
+            transform: scale(0.5);
+            background-color: var(--accent);
+        }
+
+        .cursor-follower.click {
+            transform: translate(-50%, -50%) scale(0.5);
+            border: 2px solid var(--accent);
+            opacity: 0.5;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            animation: fadeInDown 1s ease;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .header-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .floating-icon {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 3rem;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            position: relative;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+            animation: fadeIn 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2.5rem;
+            color: var(--gray);
+        }
+
+        /* Irrigation Form */
+        .irrigation-form {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            margin: 2rem 0;
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-dark);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+
+        .form-button {
+            display: block;
+            width: 100%;
+            background: var(--primary);
+            color: var(--white);
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1.5rem;
+        }
+
+        .form-button:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Results Section */
+        .results {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            margin: 2rem 0;
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .results-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-dark);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-card {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .result-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .result-card h4 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+        }
+
+        .result-card p {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .schedule {
+            margin-top: 2rem;
+        }
+
+        .schedule h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .schedule-table th {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .schedule-table tr:nth-child(even) {
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+
+        /* Features Section */
+        .features {
+            margin: 6rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.2rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-item {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-item h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: var(--white);
+            padding: 4rem 2rem 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--light);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            padding-left: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Particle animation background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(76, 175, 80, 0.2);
+            animation: float-particle 15s infinite linear;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            * {
+                cursor: auto !important; /* Restore default cursor on mobile */
+            }
+            
+            .cursor, .cursor-follower {
+                display: none;
+            }
+            
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .hero h2 {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .schedule-table {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+    
+    <!-- Animated Background Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header Section -->
+    <header>
+        <div class="header-content">
+            <h1>Irrigation Planning</h1>
+            <p>Optimize your water usage with AI-powered irrigation planning</p>
+        </div>
+        <div class="header-animation">
+            <i class="floating-icon fas fa-tint" style="top: 20%; left: 10%; animation-delay: 0s;"></i>
+            <i class="floating-icon fas fa-tint" style="top: 60%; left: 80%; animation-delay: 1s;"></i>
+            <i class="floating-icon fas fa-tint" style="top: 40%; left: 70%; animation-delay: 2s;"></i>
+            <i class="floating-icon fas fa-tint" style="top: 70%; left: 20%; animation-delay: 3s;"></i>
+            <i class="floating-icon fas fa-cloud-rain" style="top: 30%; left: 50%; animation-delay: 4s;"></i>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-seedling"></i>
+                <span>Farm-AI</span>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('crophealth_page') }}">Crop Health</a>
+                <a href="{{ url_for('yieldprediction_page') }}">Yield Prediction</a>
+                <a href="#">Irrigation Planning</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <h2>Smart Irrigation Planning</h2>
+            <p>Maximize your crop yield while minimizing water usage with our AI-powered irrigation planning system. Get personalized recommendations based on your specific farm conditions.</p>
+        </section>
+
+        <!-- Irrigation Form -->
+        <section class="irrigation-form">
+            <div class="form-title">
+                <h2>Enter Your Farm Details</h2>
+                <p>Provide information about your farm to get customized irrigation recommendations</p>
+            </div>
+            
+            <form id="irrigationForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="cropType">Crop Type</label>
+                        <select id="cropType" required>
+                            <option value="">Select Crop Type</option>
+                            <option value="wheat">Wheat</option>
+                            <option value="corn">Corn</option>
+                            <option value="rice">Rice</option>
+                            <option value="soybean">Soybean</option>
+                            <option value="cotton">Cotton</option>
+                            <option value="vegetables">Vegetables</option>
+                            <option value="fruits">Fruits</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="soilType">Soil Type</label>
+                        <select id="soilType" required>
+                            <option value="">Select Soil Type</option>
+                            <option value="sandy">Sandy</option>
+                            <option value="loamy">Loamy</option>
+                            <option value="clay">Clay</option>
+                            <option value="silty">Silty</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="area">Farm Area (acres)</label>
+                        <input type="number" id="area" min="1" required placeholder="Enter area in acres">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="region">Region</label>
+                        <input type="text" id="region" required placeholder="Enter your region">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="irrigationSystem">Irrigation System</label>
+                        <select id="irrigationSystem" required>
+                            <option value="">Select Irrigation System</option>
+                            <option value="drip">Drip Irrigation</option>
+                            <option value="sprinkler">Sprinkler System</option>
+                            <option value="flood">Flood Irrigation</option>
+                            <option value="pivot">Center Pivot</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="waterSource">Water Source</label>
+                        <select id="waterSource" required>
+                            <option value="">Select Water Source</option>
+                            <option value="well">Well</option>
+                            <option value="river">River</option>
+                            <option value="canal">Canal</option>
+                            <option value="rainwater">Rainwater Harvesting</option>
+                        </select>
+                    </div>
+                </div>
+                
+                
+                <button type="submit" class="form-button">Generate Irrigation Plan</button>
+            </form>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results" id="resultsSection">
+            <div class="results-title">
+                <h2>Your Irrigation Plan</h2>
+                <p>Based on your farm details, here's your optimized irrigation schedule</p>
+            </div>
+            
+            <div class="results-grid">
+                <div class="result-card animated">
+                    <i class="fas fa-tint"></i>
+                    <h4>Water Required</h4>
+                    <p id="waterRequired">0</p>
+                    <span>liters per day</span>
+                </div>
+                
+                <div class="result-card animated">
+                    <i class="fas fa-clock"></i>
+                    <h4>Irrigation Frequency</h4>
+                    <p id="irrigationFrequency">0</p>
+                    <span>times per week</span>
+                </div>
+                
+                <div class="result-card animated">
+                    <i class="fas fa-bolt"></i>
+                    <h4>Estimated Savings</h4>
+                    <p id="waterSavings">0%</p>
+                    <span>compared to traditional methods</span>
+                </div>
+            </div>
+            
+            <div class="schedule">
+                <h3>Weekly Irrigation Schedule</h3>
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Duration</th>
+                            <th>Water Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleBody">
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section class="features">
+            <div class="section-title animated">
+                <h2>Benefits of Smart Irrigation</h2>
+                <p>How our AI-powered irrigation planning helps your farm</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-item animated">
+                    <div class="feature-icon">
+                        <i class="fas fa-tint-slash"></i>
+                    </div>
+                    <h3>Water Conservation</h3>
+                    <p>Reduce water usage by up to 30% with optimized irrigation schedules.</p>
+                </div>
+                
+                <div class="feature-item animated">
+                    <div class="feature-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <h3>Cost Savings</h3>
+                    <p>Lower your water bills and energy costs with efficient irrigation.</p>
+                </div>
+                
+                <div class="feature-item animated">
+                    <div class="feature-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h3>Improved Yield</h3>
+                    <p>Optimal water delivery leads to healthier crops and higher yields.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Farm-AI</h3>
+                <p>Transforming agriculture through artificial intelligence and data analytics for sustainable farming.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('crophealth_page') }}">Crop Health</a></li>
+                    <li><a href="{{ url_for('yieldprediction_page') }}">Yield Prediction</a></li>
+                    <li><a href="#">Irrigation Planning</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Services</h3>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('crophealth_page') }}">Crop Health Prediction</a></li>
+                    <li><a href="{{ url_for('yieldprediction_page') }}">Yield Prediction</a></li>
+                    <li><a href="#">Soil Analysis</a></li>
+                    <li><a href="#">Irrigation Planning</a></li>
+                    <li><a href="#">Pest Detection</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Contact Us</h3>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt"></i> AIET & GITA</li>
+                    <li><i class="fas fa-phone"></i> +91 9114424401</li>
+                    <li><i class="fas fa-envelope"></i> paridaommsnehasish@gmail.com</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2023 Farm-AI. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Custom cursor implementation
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.querySelector('.cursor');
+            const cursorFollower = document.querySelector('.cursor-follower');
+            
+            // Move cursor
+            document.addEventListener('mousemove', function(e) {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                
+                // Add slight delay to follower for smooth effect
+                setTimeout(() => {
+                    cursorFollower.style.left = e.clientX + 'px';
+                    cursorFollower.style.top = e.clientY + 'px';
+                }, 100);
+            });
+            
+            // Cursor hover effects
+            const hoverElements = document.querySelectorAll('a, button, .form-button, .feature-item, .social-links a, input, select, textarea');
+            
+            hoverElements.forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    cursor.classList.add('hover');
+                    cursorFollower.classList.add('hover');
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hover');
+                    cursorFollower.classList.remove('hover');
+                });
+            });
+            
+            // Cursor click effect
+            document.addEventListener('mousedown', () => {
+                cursor.classList.add('click');
+                cursorFollower.classList.add('click');
+            });
+            
+            document.addEventListener('mouseup', () => {
+                cursor.classList.remove('click');
+                cursorFollower.classList.remove('click');
+            });
+            
+            // Create background particles
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random properties
+                const size = Math.random() * 20 + 5;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = Math.random() * 10 + 15;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}vw`;
+                particle.style.top = `${posY}vh`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+            
+            // Animation on scroll
+            const animatedElements = document.querySelectorAll('.animated');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('animate');
+                        }, 100);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            
+            animatedElements.forEach(element => {
+                observer.observe(element);
+            });
+            
+            // Form submission - Backend AI model
+            document.getElementById('irrigationForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+                
+                const submitBtn = this.querySelector('.form-button');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Generating Plan...';
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/predict_irrigation', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                    } else {
+                        // Update results
+                        document.getElementById('waterRequired').textContent = data.water_required.toLocaleString();
+                        document.getElementById('irrigationFrequency').textContent = data.irrigation_frequency;
+                        document.getElementById('waterSavings').textContent = data.water_savings_percent + '%';
+
+                        // Update schedule
+                        const scheduleBody = document.getElementById('scheduleBody');
+                        scheduleBody.innerHTML = '';
+                        data.schedule.forEach(entry => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${entry.day}</td>
+                                <td>${entry.time}</td>
+                                <td>${entry.duration}</td>
+                                <td>${entry.amount}</td>
+                            `;
+                            scheduleBody.appendChild(row);
+                        });
+
+                        document.getElementById('resultsSection').classList.add('visible');
+                        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                    }
+                } catch (err) {
+                    alert('Network error: ' + err.message);
+                } finally {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+            
+            // Floating animation for header icons
+            const floatingIcons = document.querySelectorAll('.floating-icon');
+            floatingIcons.forEach(icon => {
+                icon.addEventListener('mouseover', () => {
+                    icon.style.animationPlayState = 'paused';
+                });
+                
+                icon.addEventListener('mouseout', () => {
+                    icon.style.animationPlayState = 'running';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

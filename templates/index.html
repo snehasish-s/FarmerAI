@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm-AI | Smart Farming Solutions</title>
+    <!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Slab:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #FF9800;
+            --secondary-dark: #F57C00;
+            --accent: #2196F3;
+            --light: #F5F5F5;
+            --dark: #333;
+            --gray: #757575;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important; /* Hide default cursor */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark);
+            background-color: var(--light);
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Roboto Slab', serif;
+            font-weight: 600;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            mix-blend-mode: difference;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+        }
+
+        .cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.6s ease, opacity 0.3s ease, border 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Cursor states */
+        .cursor.hover {
+            transform: scale(2);
+            background-color: var(--secondary);
+        }
+
+        .cursor-follower.hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            border: 2px solid var(--secondary);
+            opacity: 0.7;
+        }
+
+        .cursor.click {
+            transform: scale(0.5);
+            background-color: var(--accent);
+        }
+
+        .cursor-follower.click {
+            transform: translate(-50%, -50%) scale(0.5);
+            border: 2px solid var(--accent);
+            opacity: 0.5;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            animation: fadeInDown 1s ease;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .header-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .floating-icon {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 3rem;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            position: relative;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+            animation: fadeIn 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2.5rem;
+            color: var(--gray);
+        }
+
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .option-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            width: 300px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .option-card:hover {
+            transform: translateY(-10px) rotateY(5deg);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), transparent);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: -1;
+        }
+
+        .option-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .card-body i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-body h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-body p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-button {
+            display: inline-block;
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 2px solid var(--primary);
+        }
+
+        .card-button:hover {
+            background: transparent;
+            color: var(--primary);
+        }
+
+        /* Features Section */
+        .features {
+            margin: 6rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.2rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-item {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-item h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Stats Section */
+        .stats {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 4rem 2rem;
+            margin: 6rem 0;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            margin: 6rem 0;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            font-size: 5rem;
+            color: var(--primary);
+            opacity: 0.2;
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-family: serif;
+        }
+
+        .testimonial-text {
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            color: var(--gray);
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .author-details h4 {
+            font-size: 1.1rem;
+        }
+
+        .author-details p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: var(--white);
+            padding: 4rem 2rem 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--light);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            padding-left: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .animated {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Particle animation background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(76, 175, 80, 0.2);
+            animation: float-particle 15s infinite linear;
+        }
+
+        @keyframes float-particle {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            * {
+                cursor: auto !important; /* Restore default cursor on mobile */
+            }
+            
+            .cursor, .cursor-follower {
+                display: none;
+            }
+            
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .hero h2 {
+                font-size: 2rem;
+            }
+            
+            .options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .option-card {
+                width: 100%;
+                max-width: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+    
+    <!-- Animated Background Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header Section -->
+    <header>
+        <div class="header-content">
+            <h1>Welcome to Farm-AI</h1>
+            <p>Your smart farming assistant!</p>
+        </div>
+        <div class="header-animation">
+            <i class="floating-icon fas fa-seedling" style="top: 20%; left: 10%; animation-delay: 0s;"></i>
+            <i class="floating-icon fas fa-tractor" style="top: 60%; left: 80%; animation-delay: 1s;"></i>
+            <i class="floating-icon fas fa-leaf" style="top: 40%; left: 70%; animation-delay: 2s;"></i>
+            <i class="floating-icon fas fa-apple-alt" style="top: 70%; left: 20%; animation-delay: 3s;"></i>
+            <i class="floating-icon fas fa-cloud-rain" style="top: 30%; left: 50%; animation-delay: 4s;"></i>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-seedling"></i>
+                <span>Farm-AI</span>
+            </div>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Features</a>
+                <a href="#">How It Works</a>
+                <a href="#">Testimonials</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <h2>Revolutionizing Agriculture with AI</h2>
+            <p>Farm-AI leverages cutting-edge artificial intelligence to help farmers optimize crop health, predict yields, and make data-driven decisions for sustainable farming practices.</p>
+            
+<div class="options">
+                <div class="option-card animated">
+                    <div class="card-header">
+                        <h3>Crop Health Prediction</h3>
+                    </div>
+                    <div class="card-body">
+                        <i class="fas fa-heartbeat"></i>
+                        <p>Get accurate predictions about your crop's health and receive recommendations for improvement.</p>
+                        <a href="{{ url_for('crophealth_page') }}" class="card-button">Analyze Now</a>
+                    </div>
+                </div>
+                
+                <div class="option-card animated">
+                    <div class="card-header">
+                        <h3>Yield Prediction</h3>
+                    </div>
+                    <div class="card-body">
+                        <i class="fas fa-chart-line"></i>
+                        <p>Predict your farm's yield with advanced AI algorithms and plan your harvest efficiently.</p>
+                        <a href="{{ url_for('yieldprediction_page') }}" class="card-button">Predict Now</a>
+                    </div>
+                </div>
+
+                <div class="option-card animated">
+                    <div class="card-header">
+                        <h3>Fertilizer Recommendation</h3>
+                    </div>
+                    <div class="card-body">
+                        <i class="fas fa-seedling"></i>
+                        <p>AI-powered NPK fertilizer recommendations optimized for your crop and soil conditions.</p>
+                        <a href="/fertilizer" class="card-button">Recommend Now</a>
+                    </div>
+                </div>
+
+                <div class="option-card animated">
+                    <div class="card-header">
+                        <h3>Pest Risk Assessment</h3>
+                    </div>
+                    <div class="card-body">
+                        <i class="fas fa-bug"></i>
+                        <p>Weather-based pest and disease outbreak risk predictions to protect your crops proactively.</p>
+                        <a href="/pestrisk" class="card-button">Assess Risks</a>
+                    </div>
+                </div>
+
+                <div class="option-card animated">
+                    <div class="card-header">
+                        <h3>Soil Fertility Analysis</h3>
+                    </div>
+                    <div class="card-body">
+                        <i class="fas fa-vial"></i>
+                        <p>Comprehensive soil health scoring and amendment recommendations from your soil test results.</p>
+                        <a href="/soil" class="card-button">Analyze Soil</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Irrigation Planning Section -->
+<section class="features">
+    <div class="section-title animated">
+        <h2>Irrigation Planning</h2>
+        <p>Optimize water usage for your crops with our smart irrigation solutions.</p>
+    </div>
+
+    <div class="feature-grid">
+        <div class="feature-item animated">
+            <div class="feature-icon">
+                <i class="fas fa-water"></i>
+            </div>
+            <h3>Efficient Water Management</h3>
+            <p>Save water while ensuring your crops get exactly what they need.</p>
+        </div>
+
+        <div class="feature-item animated">
+            <div class="feature-icon">
+                <i class="fas fa-tint"></i>
+            </div>
+            <h3>Smart Scheduling</h3>
+            <p>Automatic irrigation schedules based on crop type and weather conditions.</p>
+        </div>
+
+        <div class="feature-item animated">
+            <div class="feature-icon">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <h3>Crop Health Support</h3>
+            <p>Integrate with our crop health monitoring to optimize watering.</p>
+        </div>
+    </div>
+
+    <!-- Button to go to irrigation page -->
+    <div class="text-center mt-6">
+        <a href="{{ url_for('irrigation_page') }}" class="btn btn-primary">
+            Plan Your Irrigation
+        </a>
+    </div>
+</section>
+
+
+       <!-- Real-Time Weather Section -->
+<section class="features">
+    <div class="section-title animated">
+        <h2>Current Weather</h2>
+        <p>Check the weather conditions for your farm location</p>
+    </div>
+
+    <div class="feature-grid">
+        <div class="feature-item animated">
+            <div class="feature-icon">
+                <i class="fas fa-cloud-sun"></i>
+            </div>
+            <h3>Weather Info</h3>
+            <p>Click the button below to see detailed weather for Bhubaneswar</p>
+
+            <!-- External Link to MSN Weather -->
+            <p>
+                <a href="https://www.msn.com/en-in/weather/forecast/in-Bhubaneshwar,India" 
+                   target="_blank" 
+                   style="display:inline-block; padding:10px 15px; background:#4CAF50; color:white; text-decoration:none; border-radius:5px;">
+                    View Weather on MSN
+                </a>
+            </p>
+        </div>
+    </div>
+</section>
+
+       <!-- Live Mandi Prices Section -->
+<section class="features">
+    <div class="section-title animated">
+        <h2>📈 Live Mandi Prices</h2>
+        <p>Real-time crop prices across Indian states (Rs/Qtl)</p>
+    </div>
+    <div id="pricesLoading" style="text-align: center; padding: 2rem;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary);"></i>
+        <p>Loading live prices...</p>
+    </div>
+    <div id="pricesContainer" style="display: none;">
+        <div class="feature-grid" id="pricesGrid"></div>
+    </div>
+</section>
+
+
+<!-- Climate-Induced Crop Pattern Analysis Section -->
+<section id="climate" style="padding:40px; background:#f9f9f9; border-radius:10px; margin:20px 0;">
+  <h2>🌱 Climate-Induced Crop Pattern Analysis</h2>
+  <p>
+    Monitor how drought, floods, and erratic rainfall affect crop patterns using weather and geospatial data. 
+    Get actionable insights for farmers and policymakers.
+  </p>
+<a href="/climate" 
+     style="display:inline-block; padding:10px 20px; background:#28a745; color:white; border-radius:8px; text-decoration:none;">
+     View Climate Dashboard
+  </a>
+</section>
+
+<!-- Include Font Awesome if not already -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="section-title animated">
+                <h2>Why Choose Farm-AI?</h2>
+                <p>Our advanced features help you maximize productivity and minimize risks</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-item animated">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Our advanced algorithms analyze crop data to provide actionable insights for improved yield.</p>
+                </div>
+                
+                <div class="feature-item animated">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-sun-rain"></i>
+                    </div>
+                    <h3>Weather Integration</h3>
+                    <p>Get accurate weather predictions tailored to your farm's location for better planning.</p>
+                </div>
+                
+                <div class="feature-item animated">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Accessibility</h3>
+                    <p>Access all features from your mobile device, even in remote farming locations.</p>
+                </div>
+            </div>
+        </section>
+
+        
+
+        <!-- Stats Section -->
+        <section class="stats">
+            <div class="stats-grid">
+                <div class="stat-item animated">
+                    <div class="stat-number" id="stat1">0</div>
+                    <div class="stat-label">Farms Using Our Technology</div>
+                </div>
+                
+                <div class="stat-item animated">
+                    <div class="stat-number" id="stat2">0</div>
+                    <div class="stat-label">Yield Increase on Average</div>
+                </div>
+                
+                <div class="stat-item animated">
+                    <div class="stat-number" id="stat3">0</div>
+                    <div class="stat-label">Acres Monitored</div>
+                </div>
+                
+                <div class="stat-item animated">
+                    <div class="stat-number" id="stat4">0</div>
+                    <div class="stat-label">Happy Farmers</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials">
+            <div class="section-title animated">
+                <h2>What Farmers Say</h2>
+                <p>Hear from farmers who have transformed their operations with Farm-AI</p>
+            </div>
+            
+            <div class="testimonial-grid">
+                <div class="testimonial-card animated">
+                    <div class="testimonial-text">
+                        "Farm-AI has completely changed how I manage my crops. The yield predictions were within 2% of actual harvest!"
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">JD</div>
+                        <div class="author-details">
+                            <h4>John Doe</h4>
+                            <p>Corn Farmer, Iowa</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card animated">
+                    <div class="testimonial-text">
+                        "The crop health predictions helped me identify a disease outbreak early, saving me thousands of dollars."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SM</div>
+                        <div class="author-details">
+                            <h4>Sarah Miller</h4>
+                            <p>Vineyard Owner, California</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card animated">
+                    <div class="testimonial-text">
+                        "As a beginner farmer, Farm-AI gave me the confidence to make data-driven decisions. My yield increased by 22% in the first season!"
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">RJ</div>
+                        <div class="author-details">
+                            <h4>Robert Johnson</h4>
+                            <p>Organic Farmer, Oregon</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Farm-AI</h3>
+                <p>Transforming agriculture through artificial intelligence and data analytics for sustainable farming.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">How It Works</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Services</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Crop Health Prediction</a></li>
+                    <li><a href="#">Yield Prediction</a></li>
+                    <li><a href="#">Soil Analysis</a></li>
+                    <li><a href="{{ url_for('irrigation_page') }}">Irrigation Planning</a></li>
+
+                    <li><a href="#">Pest Detection</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>Contact Us</h3>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt"></i> AIET & GITA</li>
+                    <li><i class="fas fa-phone"></i> +91 9114424401</li>
+                    <li><i class="fas fa-envelope"></i> paridaommsnehasish@gmail.com</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2023 Farm-AI. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Custom cursor implementation
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.querySelector('.cursor');
+            const cursorFollower = document.querySelector('.cursor-follower');
+            
+            // Move cursor
+            document.addEventListener('mousemove', function(e) {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                
+                // Add slight delay to follower for smooth effect
+                setTimeout(() => {
+                    cursorFollower.style.left = e.clientX + 'px';
+                    cursorFollower.style.top = e.clientY + 'px';
+                }, 100);
+            });
+            
+            // Cursor hover effects
+            const hoverElements = document.querySelectorAll('a, button, .card-button, .option-card, .feature-item, .social-links a');
+            
+            hoverElements.forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    cursor.classList.add('hover');
+                    cursorFollower.classList.add('hover');
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hover');
+                    cursorFollower.classList.remove('hover');
+                });
+            });
+            
+            // Cursor click effect
+            document.addEventListener('mousedown', () => {
+                cursor.classList.add('click');
+                cursorFollower.classList.add('click');
+            });
+            
+            document.addEventListener('mouseup', () => {
+                cursor.classList.remove('click');
+                cursorFollower.classList.remove('click');
+            });
+            
+            // Create background particles
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random properties
+                const size = Math.random() * 20 + 5;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = Math.random() * 10 + 15;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}vw`;
+                particle.style.top = `${posY}vh`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+            
+            // Animation on scroll
+            const animatedElements = document.querySelectorAll('.animated');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('animate');
+                        }, 100);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            
+            animatedElements.forEach(element => {
+                observer.observe(element);
+            });
+            
+            // Animate stats counter
+            const stat1 = document.getElementById('stat1');
+            const stat2 = document.getElementById('stat2');
+            const stat3 = document.getElementById('stat3');
+            const stat4 = document.getElementById('stat4');
+            
+            const statsSection = document.querySelector('.stats');
+            
+            const statsObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateValue(stat1, 0, 1250, 2000);
+                        animateValue(stat2, 0, 27, 2000);
+                        animateValue(stat3, 0, 50000, 2000);
+                        animateValue(stat4, 0, 98, 2000);
+                        statsObserver.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.5
+            });
+            
+            statsObserver.observe(statsSection);
+            
+            function animateValue(element, start, end, duration) {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    element.innerHTML = Math.floor(progress * (end - start) + start);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+            
+// Live Crop Prices
+            fetch('/get_crop_prices')
+                .then(response => response.json())
+                .then(prices => {
+                    const container = document.getElementById('pricesContainer');
+                    const grid = document.getElementById('pricesGrid');
+                    const loading = document.getElementById('pricesLoading');
+                    
+                    prices.forEach(stateData => {
+                        const stateCard = document.createElement('div');
+                        stateCard.className = 'feature-item animated';
+                        stateCard.style.background = 'linear-gradient(135deg, #f8f9fa, #e9ecef)';
+                        stateCard.innerHTML = `
+                            <h3>${stateData.state} <i class="fas fa-map-marker-alt" style="color: var(--primary);"></i></h3>
+                            <div style="margin-top: 1rem;">
+                                ${stateData.crops.map(crop => `
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; padding: 0.5rem; background: white; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <span>${crop.name}</span>
+                                        <span><strong>${crop.price.toLocaleString()} ${crop.unit}</strong> <span style="color: ${crop.change.startsWith('+') ? 'green' : 'red'}">${crop.change}</span></span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        grid.appendChild(stateCard);
+                    });
+                    loading.style.display = 'none';
+                    container.style.display = 'block';
+                })
+                .catch(error => {
+                    document.getElementById('pricesLoading').innerHTML = '<p>Prices temporarily unavailable</p>';
+                });
+            
+            // Floating animation for header icons
+            const floatingIcons = document.querySelectorAll('.floating-icon');
+            floatingIcons.forEach(icon => {
+                icon.addEventListener('mouseover', () => {
+                    icon.style.animationPlayState = 'paused';
+                });
+                
+                icon.addEventListener('mouseout', () => {
+                    icon.style.animationPlayState = 'running';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

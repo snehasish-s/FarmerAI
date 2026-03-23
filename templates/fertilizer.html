@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fertilizer Recommendation | Farm-AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Slab:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #FF9800;
+            --warning: #FF5722;
+            --light: #F5F5F5;
+            --dark: #333;
+            --gray: #757575;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none !important;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark);
+            background-color: var(--light);
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Roboto Slab', serif;
+            font-weight: 600;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            mix-blend-mode: difference;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s ease;
+        }
+
+        .cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.6s ease, opacity 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor.hover { transform: scale(2); background-color: var(--secondary); }
+        .cursor-follower.hover { transform: translate(-50%, -50%) scale(1.5); border-color: var(--secondary); opacity: 0.7; }
+        .cursor.click { transform: scale(0.5); background-color: var(--warning); }
+        .cursor-follower.click { transform: translate(-50%, -50%) scale(0.5); border-color: var(--warning); opacity: 0.5; }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header h1 { font-size: 2.8rem; margin-bottom: 0.5rem; }
+        header p { font-size: 1.2rem; margin-bottom: 1.5rem; }
+
+        /* Nav */
+        nav {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 1.5rem; color: var(--primary); }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a { color: var(--dark); text-decoration: none; font-weight: 500; position: relative; transition: var(--transition); }
+        .nav-links a:hover { color: var(--primary); }
+        .nav-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--primary); transition: var(--transition); }
+        .nav-links a:hover::after { width: 100%; }
+
+        /* Main */
+        main { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+
+        .hero { text-align: center; padding: 4rem 0; }
+        .hero h2 { font-size: 2.5rem; margin-bottom: 1.5rem; color: var(--primary-dark); }
+        .hero p { font-size: 1.2rem; max-width: 800px; margin: 0 auto 2.5rem; color: var(--gray); }
+
+        /* Form */
+        .fertilizer-form {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            margin: 2rem 0;
+        }
+
+        .form-title { text-align: center; margin-bottom: 2rem; color: var(--primary-dark); }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+
+        .form-button {
+            width: 100%;
+            background: var(--primary);
+            color: var(--white);
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1.5rem;
+        }
+
+        .form-button:hover { background: var(--primary-dark); }
+
+        /* Results */
+        .results {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            margin: 2rem 0;
+            display: none;
+        }
+
+        .results.visible { display: block; animation: fadeIn 0.5s ease; }
+
+        .results-title { text-align: center; margin-bottom: 2rem; color: var(--primary-dark); }
+
+        .npk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .npk-card {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .npk-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .npk-card.n { color: #2196F3; }
+        .npk-card.n .npk-icon { color: #2196F3; }
+        .npk-card.p { color: #FF9800; }
+        .npk-card.p .npk-icon { color: #FF9800; }
+        .npk-card.k { color: #9C27B0; }
+        .npk-card.k .npk-icon { color: #9C27B0; }
+
+        .npk-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .recommendations {
+            background: #f0f8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .rec-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .rec-icon { color: var(--primary); font-size: 1.2rem; margin-top: 0.2rem; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            * { cursor: auto !important; }
+            .cursor, .cursor-follower { display: none; }
+            header h1 { font-size: 2.2rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .npk-grid { grid-template-columns: 1fr; }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <header>
+        <div class="header-content">
+            <h1>Fertilizer Recommendation</h1>
+            <p>AI-powered NPK fertilizer recommendations for optimal crop yield</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-seedling"></i>
+                <span>Farm-AI</span>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('crophealth_page') }}">Crop Health</a>
+                <a href="{{ url_for('yieldprediction_page') }}">Yield</a>
+                <a href="{{ url_for('irrigation_page') }}">Irrigation</a>
+                <a href="/fertilizer">Fertilizer</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <h2>Precision Fertilizer Planning</h2>
+            <p>Get exact NPK requirements based on your crop type, soil conditions, and target yield goals</p>
+        </section>
+
+        <section class="fertilizer-form">
+            <div class="form-title">
+                <h2>Enter Farm Details</h2>
+                <p>Get personalized fertilizer recommendations</p>
+            </div>
+            
+            <form id="fertilizerForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="cropType">Crop Type</label>
+                        <select id="cropType" required>
+                            <option value="">Select Crop</option>
+                            <option value="wheat">Wheat</option>
+                            <option value="corn">Corn</option>
+                            <option value="rice">Rice</option>
+                            <option value="soybean">Soybean</option>
+                            <option value="cotton">Cotton</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="soilType">Soil Type</label>
+                        <select id="soilType" required>
+                            <option value="">Select Soil</option>
+                            <option value="sandy">Sandy</option>
+                            <option value="loamy">Loamy</option>
+                            <option value="clay">Clay</option>
+                            <option value="silty">Silty</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="targetYield">Target Yield (tons/ha)</label>
+                        <input type="number" id="targetYield" step="0.1" min="1" max="10" required placeholder="e.g. 5.0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="soilN">Current Soil Nitrogen (ppm)</label>
+                        <input type="number" id="soilN" step="1" min="0" max="200" required placeholder="Soil test result">
+                    </div>
+                </div>
+                
+                <button type="submit" class="form-button">Generate NPK Plan</button>
+            </form>
+        </section>
+
+        <section class="results" id="resultsSection">
+            <div class="results-title">
+                <h2>Your Fertilizer Plan</h2>
+                <p>Recommended NPK application for optimal yield</p>
+            </div>
+            
+            <div class="npk-grid">
+                <div class="npk-card n">
+                    <i class="fas fa fa-nitrogen npk-icon">N</i>
+                    <div class="npk-value" id="npkN">0</div>
+                    <span>kg/ha</span>
+                </div>
+                <div class="npk-card p">
+                    <i class="fas fa fa-phosphorus npk-icon">P</i>
+                    <div class="npk-value" id="npkP">0</div>
+                    <span>kg/ha</span>
+                </div>
+                <div class="npk-card k">
+                    <i class="fas fa fa-potassium npk-icon">K</i>
+                    <div class="npk-value" id="npkK">0</div>
+                    <span>kg/ha</span>
+                </div>
+            </div>
+            
+            <div class="recommendations">
+                <h4>📋 Application Schedule & Tips</h4>
+                <div id="recommendationsList">
+                    <p>Analysis loading...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cursor = document.querySelector('.cursor');
+            const cursorFollower = document.querySelector('.cursor-follower');
+            
+            document.addEventListener('mousemove', e => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                setTimeout(() => {
+                    cursorFollower.style.left = e.clientX + 'px';
+                    cursorFollower.style.top = e.clientY + 'px';
+                }, 100);
+            });
+
+            ['a', 'button', 'input', 'select'].forEach(sel => {
+                document.querySelectorAll(sel).forEach(el => {
+                    el.addEventListener('mouseenter', () => {
+                        cursor.classList.add('hover');
+                        cursorFollower.classList.add('hover');
+                    });
+                    el.addEventListener('mouseleave', () => {
+                        cursor.classList.remove('hover');
+                        cursorFollower.classList.remove('hover');
+                    });
+                });
+            });
+
+            document.addEventListener('mousedown', () => {
+                cursor.classList.add('click');
+                cursorFollower.classList.add('click');
+            });
+            document.addEventListener('mouseup', () => {
+                cursor.classList.remove('click');
+                cursorFollower.classList.remove('click');
+            });
+
+            // Form submission
+            document.getElementById('fertilizerForm').addEventListener('submit', async e => {
+                e.preventDefault();
+                
+                const formData = new FormData();
+                formData.append('cropType', document.getElementById('cropType').value);
+                formData.append('soilType', document.getElementById('soilType').value);
+                formData.append('targetYield', document.getElementById('targetYield').value);
+                formData.append('soilN', document.getElementById('soilN').value);
+
+                const btn = e.target.querySelector('.form-button');
+                const original = btn.textContent;
+                btn.textContent = 'Analyzing...';
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('/predict_fertilizer', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                    } else {
+                        document.getElementById('npkN').textContent = Math.round(data.n_kg_ha);
+                        document.getElementById('npkP').textContent = Math.round(data.p_kg_ha);
+                        document.getElementById('npkK').textContent = Math.round(data.k_kg_ha);
+                        
+                        document.getElementById('resultsSection').classList.add('visible');
+                        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+                        
+                        // Simple recs
+                        let recs = '<ul>';
+                        if (data.n_kg_ha > 50) recs += '<li class="rec-item"><i class="fas fa-check-circle rec-icon"></i><span>Apply Urea/Nitrate: ' + Math.round(data.n_kg_ha/2) + 'kg basal, rest split</span></li>';
+                        if (data.p_kg_ha > 30) recs += '<li class="rec-item"><i class="fas fa-check-circle rec-icon"></i><span>Superphosphate: ' + Math.round(data.p_kg_ha) + 'kg at planting</span></li>';
+                        if (data.k_kg_ha > 30) recs += '<li class="rec-item"><i class="fas fa-check-circle rec-icon"></i><span>Muriate of Potash: ' + Math.round(data.k_kg_ha) + 'kg split application</span></li>';
+                        recs += '</ul>';
+                        document.getElementById('recommendationsList').innerHTML = recs;
+                    }
+                } catch (err) {
+                    alert('Network error: ' + err.message);
+                } finally {
+                    btn.textContent = original;
+                    btn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
