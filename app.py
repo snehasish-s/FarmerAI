@@ -4,17 +4,36 @@ import io
 import requests
 import os
 
+# Try TF import optional
+try:
+    import tensorflow as tf
+    import numpy as np
+    import pickle
+    MODELS_AVAILABLE = True
+except ImportError:
+    MODELS_AVAILABLE = False
+    tf = np = pickle = None
+
 app = Flask(__name__)
 
 # Free Weather API - Managed fallback for genuine look
 WEATHER_API_KEY = os.getenv('WEATHER_API_KEY', 'demo_key_hidden')  # Set env var for real key
 WEATHER_BASE_URL = 'https://wttr.in/{location}?format=j1'  # Free wttr.in (no key needed)
 
-# MVP: Mock models (no TF)
-MODELS_AVAILABLE = False
-class_labels = {0: "Healthy", 1: "Nutrient Deficient", 2: "Leaf Blight", 3: "Rust", 4: "Other Disease"}
-irrigation_preproc = {'crop_map': {'wheat': 0}, 'soil_map': {'loamy': 1}, 'X_mean': 0, 'X_std': 1}
-fertilizer_preproc = {'crop_map': {'wheat': 0}, 'soil_map': {'loamy': 1}, 'X_mean': 0, 'X_std': 1}
+# Models (loaded if available)
+if MODELS_AVAILABLE:
+    crop_health_model = tf.keras.models.load_model("models/crop_health_model.keras")
+    yield_model = tf.keras.models.load_model("models/yield_model.keras")
+    irrigation_model = tf.keras.models.load_model("models/irrigation_model.keras")
+    fertilizer_model = tf.keras.models.load_model("models/fertilizer_model.keras")
+    with open("models/irrigation_preproc.pkl", "rb") as f:
+        irrigation_preproc = pickle.load(f)
+    with open("models/fertilizer_preproc.pkl", "rb") as f:
+        fertilizer_preproc = pickle.load(f)
+else:
+    class_labels = {0: "Healthy", 1: "Nutrient Deficient", 2: "Leaf Blight", 3: "Rust", 4: "Other Disease"}
+    irrigation_preproc = {'crop_map': {'wheat': 0}, 'soil_map': {'loamy': 1}, 'X_mean': 0, 'X_std': 1}
+    fertilizer_preproc = {'crop_map': {'wheat': 0}, 'soil_map': {'loamy': 1}, 'X_mean': 0, 'X_std': 1}
 
 # Class labels for crop health
 class_labels = {
